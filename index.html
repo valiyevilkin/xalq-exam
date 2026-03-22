@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xalqbank — Ağ Şəhər Təlim Portalı</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #003366;
+  --navy-dark:  #002244;
+  --navy-light: #004488;
+  --gold:       #C8960C;
+  --gold-light: #E8B020;
+  --gold-pale:  #FFF8E7;
+  --bg:         #F4F6FA;
+  --surface:    #FFFFFF;
+  --border:     #DDE3EE;
+  --text:       #1A2340;
+  --muted:      #6B7A99;
+  --success:    #1A7A4A;
+  --danger:     #C0392B;
+  --radius:     12px;
+  --shadow:     0 2px 16px rgba(0,51,102,0.10);
+  --shadow-lg:  0 8px 40px rgba(0,51,102,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── NAV ── */
+nav {
+  background: var(--navy);
+  padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-brand { display: flex; align-items: center; gap: 14px; }
+.nav-logo-box {
+  width: 38px; height: 38px; border-radius: 8px;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 700; color: var(--navy);
+}
+.nav-title { color: #fff; font-size: 15px; font-weight: 600; line-height: 1.2; }
+.nav-title span { display: block; font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.6); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.user-chip {
+  display: none; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 6px 14px;
+  color: #fff; font-size: 13px;
+}
+.user-chip.show { display: flex; }
+.btn-logout {
+  background: transparent; border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.7); border-radius: 8px;
+  padding: 6px 14px; font-size: 12px; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all 0.2s; display: none;
+}
+.btn-logout.show { display: block; }
+.btn-logout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-admin-nav {
+  background: var(--gold); color: var(--navy);
+  border: none; border-radius: 8px;
+  padding: 7px 16px; font-size: 12px; font-weight: 600;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-admin-nav:hover { background: var(--gold-light); }
+
+/* ── LOGIN SCREEN ── */
+#login-screen {
+  min-height: calc(100vh - 64px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, #004d99 100%);
+}
+.login-card {
+  background: var(--surface); border-radius: 20px;
+  padding: 48px 44px; width: 100%; max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.4s ease both;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.login-header { text-align: center; margin-bottom: 36px; }
+.login-emblem {
+  width: 68px; height: 68px; border-radius: 16px;
+  background: var(--navy); margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--gold);
+}
+.login-header h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--navy); margin-bottom: 6px; }
+.login-header p { color: var(--muted); font-size: 13px; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.form-group select, .form-group input {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 15px; outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.form-group select:focus, .form-group input:focus { border-color: var(--navy); }
+.pin-input { letter-spacing: 6px; font-size: 20px; font-weight: 600; text-align: center; }
+.btn-login {
+  width: 100%; padding: 14px;
+  background: var(--navy); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+  position: relative; overflow: hidden;
+}
+.btn-login::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(200,150,12,0.3) 50%, transparent 100%);
+  transform: translateX(-100%); transition: transform 0.5s;
+}
+.btn-login:hover { background: var(--navy-light); transform: translateY(-1px); }
+.btn-login:hover::after { transform: translateX(100%); }
+.login-error {
+  background: #FEF0EE; border: 1px solid #FACCBC;
+  border-radius: 10px; padding: 10px 14px;
+  color: var(--danger); font-size: 13px; margin-top: 14px;
+  display: none;
+}
+.login-error.show { display: block; }
+
+/* ── MAIN APP ── */
+#app-screen { display: none; }
+#app-screen.show { display: block; }
+
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  padding: 48px 40px 40px; color: #fff;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(200,150,12,0.2); border: 1px solid rgba(200,150,12,0.4);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 11px; font-weight: 600; color: var(--gold-light);
+  letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 16px;
+}
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.hero-sub { color: rgba(255,255,255,0.65); font-size: 14px; font-weight: 300; margin-bottom: 28px; }
+.stats-row { display: flex; gap: 32px; }
+.stat-num { font-size: 26px; font-weight: 700; color: var(--gold-light); }
+.stat-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  padding: 24px 40px 20px;
+  display: flex; gap: 12px; align-items: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.search-wrap { flex: 1; max-width: 320px; position: relative; }
+.search-wrap input {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 14px;
+  padding: 9px 14px 9px 38px; outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--navy); }
+.search-wrap::before { content: '⌕'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 17px; pointer-events: none; }
+
+/* ── GRID ── */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 28px 40px 60px; }
+
+.card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 26px;
+  cursor: pointer; transition: all 0.2s;
+  animation: fadeUp 0.35s ease both;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--navy), var(--gold));
+  opacity: 0; transition: opacity 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: #b0bdd4; }
+.card:hover::before { opacity: 1; }
+.card.done { border-color: #b8d4b8; background: #f8fff8; }
+.card.done::before { opacity: 1; background: linear-gradient(90deg, var(--success), #43a870); }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--navy), var(--navy-light));
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.card-badge {
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+  background: #EAF0FB; color: var(--navy); border: 1px solid #C5D5EE;
+}
+.card-badge.hard { background: #FEF0EE; color: var(--danger); border-color: #FACCBC; }
+.card-badge.medium { background: #FFF8E7; color: #8A6500; border-color: #F5D87A; }
+.card-badge.done-badge { background: #EAF7EE; color: var(--success); border-color: #A8D8B8; }
+.card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }
+.card-desc { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+.card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.meta-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.meta-val { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.pass-bar-wrap { flex: 1; margin-right: 14px; }
+.pass-bar-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.pass-bar { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.pass-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--navy), var(--gold)); }
+.btn-start {
+  padding: 8px 18px; background: var(--navy); color: #fff;
+  border: none; border-radius: 8px; font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-start:hover { background: var(--navy-light); }
+.btn-start.done-btn { background: var(--success); cursor: default; }
+.btn-start.done-btn:hover { background: var(--success); transform: none; }
+
+/* ── ADMIN PANEL ── */
+#admin-screen { display: none; padding: 0; }
+#admin-screen.show { display: block; }
+.admin-hero {
+  background: linear-gradient(135deg, var(--navy-dark), #1a3a6b);
+  padding: 32px 40px; color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-hero h2 { font-family: 'Playfair Display', serif; font-size: 24px; }
+.admin-hero p { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 4px; }
+.btn-back-main {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; border-radius: 8px; padding: 8px 18px;
+  font-family: 'Inter', sans-serif; font-size: 13px; cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-back-main:hover { background: rgba(255,255,255,0.2); }
+
+.admin-body { padding: 28px 40px 60px; }
+.admin-section-title {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600;
+  color: var(--navy); margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--gold);
+}
+.admin-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--surface); border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow); margin-bottom: 40px;
+}
+.admin-table th {
+  background: var(--navy); color: #fff;
+  padding: 12px 16px; text-align: left; font-size: 12px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.admin-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--border); }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--bg); }
+.score-pill {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+}
+.score-pill.pass { background: #EAF7EE; color: var(--success); }
+.score-pill.fail { background: #FEF0EE; color: var(--danger); }
+.score-pill.none { background: var(--bg); color: var(--muted); }
+.btn-del {
+  background: #FEF0EE; color: var(--danger); border: 1px solid #FACCBC;
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s;
+}
+.btn-del:hover { background: var(--danger); color: #fff; }
+.detail-toggle {
+  background: var(--bg); color: var(--navy); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: all 0.2s;
+}
+.detail-toggle:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+.detail-row { display: none; }
+.detail-row.open { display: table-row; }
+.detail-cell { padding: 12px 16px; background: #f8fafd; }
+.q-detail-grid { display: flex; flex-direction: column; gap: 6px; }
+.q-detail-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.q-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.q-dot.ok { background: var(--success); }
+.q-dot.bad { background: var(--danger); }
+.q-dot.skip { background: var(--muted); }
+
+/* ── ADMIN LOGIN ── */
+.admin-login-overlay {
+  position: fixed; inset: 0; background: rgba(0,30,60,0.7);
+  backdrop-filter: blur(6px); z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.admin-login-box {
+  background: var(--surface); border-radius: 16px;
+  padding: 36px; width: 100%; max-width: 360px;
+  box-shadow: var(--shadow-lg);
+}
+.admin-login-box h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 20px; color: var(--navy); }
+
+/* ── EMPTY ── */
+.empty { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .hero, .toolbar, .grid, .admin-body { padding-left: 16px; padding-right: 16px; }
+  .admin-hero { flex-direction: column; gap: 16px; align-items: flex-start; }
+  .admin-table { font-size: 12px; }
+  .admin-table th, .admin-table td { padding: 10px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo-box">X</div>
+    <div class="nav-title">
+      Xalqbank — Ağ Şəhər Təlim Portalı
+      <span>Daxili təlim platforması</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="user-chip" id="user-chip">👤 <span id="chip-name"></span></div>
+    <button class="btn-logout" id="btn-logout" onclick="logout()">Çıxış</button>
+    <button class="btn-admin-nav" onclick="openAdminLogin()">Admin</button>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-emblem">X</div>
+      <h2>Xoş gəlmisiniz</h2>
+      <p>Daxil olmaq üçün adınızı seçin və şifrənizi daxil edin</p>
+    </div>
+    <div class="form-group">
+      <label>Adınızı seçin</label>
+      <select id="login-name">
+        <option value="">— Seçin —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Şifrə (4 rəqəm)</label>
+      <input type="password" id="login-pin" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Daxil ol</button>
+    <div class="login-error" id="login-error">Ad və ya şifrə yanlışdır. Yenidən cəhd edin.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen">
+  <div class="hero">
+    <div class="hero-tag">🏦 Ağ Şəhər Filialı</div>
+    <h1>Təlim Portalı</h1>
+    <p class="hero-sub">Sınaqları keçin, nəticələrinizi izləyin, həmkarlarınızla müqayisə edin.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Sınaq</div></div>
+      <div class="stat"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Tamamlanmış</div></div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="search-wrap"><input type="text" id="search" placeholder="Sınaq axtar..."></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-screen">
+  <div class="admin-hero">
+    <div>
+      <h2>⚙️ Admin Paneli</h2>
+      <p>Bütün istifadəçilərin nəticələrini idarə edin</p>
+    </div>
+    <button class="btn-back-main" onclick="closeAdmin()">← Ana səhifəyə qayıt</button>
+  </div>
+  <div class="admin-body" id="admin-body"></div>
+</div>
+
+<!-- ADMIN LOGIN OVERLAY -->
+<div class="admin-login-overlay" id="admin-overlay" style="display:none">
+  <div class="admin-login-box">
+    <h3>🔐 Admin girişi</h3>
+    <div class="form-group">
+      <label>Admin şifrəsi</label>
+      <input type="password" id="admin-pin-input" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+    </div>
+    <div style="display:flex; gap:10px; margin-top:8px">
+      <button class="btn-login" style="flex:1" onclick="doAdminLogin()">Daxil ol</button>
+      <button style="padding:14px 18px; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius); cursor:pointer; font-family:Inter,sans-serif;" onclick="closeAdminLogin()">Ləğv et</button>
+    </div>
+    <div class="login-error" id="admin-error">Şifrə yanlışdır.</div>
+  </div>
+</div>
+
+<script src="users.js"></script>
+<script>
+const EXAMS_KEY = 'xb_exams';
+const RESULTS_KEY = 'xb_results';
+
+let currentUser = null;
+
+// ── POPULATE LOGIN SELECT
+function populateSelect() {
+  const sel = document.getElementById('login-name');
+  USERS.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.name; opt.textContent = u.name;
+    sel.appendChild(opt);
+  });
+}
+
+// ── LOGIN
+function doLogin() {
+  const name = document.getElementById('login-name').value;
+  const pin  = document.getElementById('login-pin').value;
+  const err  = document.getElementById('login-error');
+  const user = USERS.find(u => u.name === name && u.pin === pin);
+  if (!user) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  currentUser = user.name;
+  document.getElementById('chip-name').textContent = currentUser;
+  document.getElementById('user-chip').classList.add('show');
+  document.getElementById('btn-logout').classList.add('show');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').classList.add('show');
+  renderGrid();
+}
+document.getElementById('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  currentUser = null;
+  document.getElementById('user-chip').classList.remove('show');
+  document.getElementById('btn-logout').classList.remove('show');
+  document.getElementById('login-pin').value = '';
+  document.getElementById('login-name').value = '';
+  document.getElementById('app-screen').classList.remove('show');
+  document.getElementById('admin-screen').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── EXAMS
+function loadExams() { try { return JSON.parse(localStorage.getItem(EXAMS_KEY)) || []; } catch { return []; } }
+function loadResults() { try { return JSON.parse(localStorage.getItem(RESULTS_KEY)) || []; } catch { return []; } }
+function saveResults(r) { localStorage.setItem(RESULTS_KEY, JSON.stringify(r)); }
+
+function userResult(examTitle) {
+  return loadResults().find(r => r.user === currentUser && r.exam === examTitle) || null;
+}
+
+function renderGrid(filter = '') {
+  const exams = loadExams().filter(e => e.title.toLowerCase().includes(filter.toLowerCase()));
+  const done  = exams.filter(e => userResult(e.title)).length;
+  document.getElementById('stat-total').textContent = exams.length;
+  document.getElementById('stat-done').textContent  = done;
+
+  const grid = document.getElementById('grid');
+  if (!exams.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div>${filter ? 'Nəticə tapılmadı' : 'Hələ sınaq əlavə edilməyib.'}</div></div>`;
+    return;
+  }
+  const diffLabel = { easy:'Asan', medium:'Orta', hard:'Çətin' };
+  const diffClass = { easy:'', medium:'medium', hard:'hard' };
+  grid.innerHTML = exams.map((e, i) => {
+    const res = userResult(e.title);
+    const isDone = !!res;
+    const passW = e.pass || 60;
+    return `
+    <div class="card ${isDone?'done':''}" style="animation-delay:${i*0.05}s">
+      <div class="card-header">
+        <div class="card-icon">${e.icon||'📋'}</div>
+        <div class="card-badge ${isDone?'done-badge':diffClass[e.diff]||''}">${isDone?'✓ Tamamlandı':diffLabel[e.diff]||'Asan'}</div>
+      </div>
+      <div class="card-title">${e.title}</div>
+      <div class="card-desc">${e.desc||'Sınaq təsviri yoxdur'}</div>
+      <div class="card-meta">
+        <div><div class="meta-label">Sual sayı</div><div class="meta-val">${e.count||'—'}</div></div>
+        <div><div class="meta-label">Vaxt limiti</div><div class="meta-val">${e.time?e.time+' dəq.':'—'}</div></div>
+      </div>
+      <div class="card-footer">
+        <div class="pass-bar-wrap">
+          <div class="pass-bar-label">Keçmə balı: ${passW}%</div>
+          <div class="pass-bar"><div class="pass-bar-fill" style="width:${passW}%"></div></div>
+        </div>
+        ${isDone
+          ? `<button class="btn-start done-btn">✓ ${res.score}%</button>`
+          : `<button class="btn-start" onclick="goExam('${encodeURIComponent(e.file||'')}','${encodeURIComponent(e.title)}')">Başla →</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function goExam(file, title) {
+  const f = decodeURIComponent(file);
+  const t = decodeURIComponent(title);
+  if (!f) { alert('Bu sınaqın faylı hələ əlavə edilməyib.'); return; }
+  // Pass current user to exam page via sessionStorage
+  sessionStorage.setItem('xb_current_user', currentUser);
+  sessionStorage.setItem('xb_exam_title', t);
+  window.location.href = f;
+}
+
+document.getElementById('search').addEventListener('input', e => renderGrid(e.target.value));
+
+// ── ADMIN
+function openAdminLogin() { document.getElementById('admin-overlay').style.display='flex'; }
+function closeAdminLogin() {
+  document.getElementById('admin-overlay').style.display='none';
+  document.getElementById('admin-pin-input').value='';
+  document.getElementById('admin-error').classList.remove('show');
+}
+function doAdminLogin() {
+  const pin = document.getElementById('admin-pin-input').value;
+  if (pin !== ADMIN_PIN) { document.getElementById('admin-error').classList.add('show'); return; }
+  closeAdminLogin();
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').classList.remove('show');
+  document.getElementById('admin-screen').classList.add('show');
+  renderAdmin();
+}
+document.getElementById('admin-pin-input').addEventListener('keydown', e => { if (e.key==='Enter') doAdminLogin(); });
+
+function closeAdmin() {
+  document.getElementById('admin-screen').classList.remove('show');
+  if (currentUser) {
+    document.getElementById('app-screen').classList.add('show');
+  } else {
+    document.getElementById('login-screen').style.display='flex';
+  }
+}
+
+function renderAdmin() {
+  const exams   = loadExams();
+  const results = loadResults();
+  const body    = document.getElementById('admin-body');
+
+  if (!exams.length) {
+    body.innerHTML = '<p style="color:var(--muted)">Hələ sınaq yoxdur.</p>';
+    return;
+  }
+
+  let html = '';
+  exams.forEach(exam => {
+    const examResults = results.filter(r => r.exam === exam.title);
+    // Users who haven't taken it yet
+    const taken = examResults.map(r => r.user);
+    const notTaken = USERS.filter(u => !taken.includes(u.name)).map(u => u.name);
+
+    html += `<div class="admin-section-title">${exam.icon||'📋'} ${exam.title}</div>`;
+    html += `<table class="admin-table">
+      <thead><tr>
+        <th>İstifadəçi</th><th>Bal</th><th>Doğru</th><th>Yanlış</th><th>Vaxt</th><th>Tarix</th><th>Detallı</th><th>Sil</th>
+      </tr></thead><tbody>`;
+
+    examResults.forEach((r, ri) => {
+      const pass = r.score >= (exam.pass||60);
+      const m = Math.floor(r.elapsed/60), s = r.elapsed%60;
+      html += `
+      <tr>
+        <td><strong>${r.user}</strong></td>
+        <td><span class="score-pill ${pass?'pass':'fail'}">${r.score}%</span></td>
+        <td style="color:var(--success);font-weight:600">${r.correct}</td>
+        <td style="color:var(--danger);font-weight:600">${r.total - r.correct}</td>
+        <td>${m}:${String(s).padStart(2,'0')}</td>
+        <td style="color:var(--muted);font-size:12px">${r.date||'—'}</td>
+        <td><button class="detail-toggle" onclick="toggleDetail('d-${exam.title}-${ri}')">Bax</button></td>
+        <td><button class="btn-del" onclick="deleteResult('${encodeURIComponent(exam.title)}','${r.user}')">Sil</button></td>
+      </tr>
+      <tr class="detail-row" id="d-${exam.title}-${ri}">
+        <td colspan="8" class="detail-cell">
+          <div class="q-detail-grid">
+            ${(r.details||[]).map((d,qi) => `
+              <div class="q-detail-item">
+                <div class="q-dot ${d.answered===null?'skip':d.correct?'ok':'bad'}"></div>
+                <span style="color:var(--muted);min-width:24px">${qi+1}.</span>
+                <span>${d.qtext||'Sual'}</span>
+                <span style="margin-left:auto;font-size:12px;color:${d.correct?'var(--success)':'var(--danger)'}">${d.answered===null?'Cavablanmadı':d.correct?'Doğru':'Yanlış'}</span>
+              </div>`).join('')}
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    notTaken.forEach(name => {
+      html += `<tr>
+        <td><strong>${name}</strong></td>
+        <td colspan="6"><span class="score-pill none">Hələ iştirak etməyib</span></td>
+        <td>—</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+  });
+
+  body.innerHTML = html;
+}
+
+function toggleDetail(id) {
+  const row = document.getElementById(id);
+  if (row) row.classList.toggle('open');
+}
+
+function deleteResult(examTitle, user) {
+  const t = decodeURIComponent(examTitle);
+  if (!confirm(`"${user}" istifadəçisinin "${t}" sınav nəticəsi silinsin?`)) return;
+  let results = loadResults().filter(r => !(r.exam === t && r.user === user));
+  saveResults(results);
+  renderAdmin();
+}
+
+// ── INIT
+populateSelect();
+</script>
+</body>
+</html>

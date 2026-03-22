@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sınaq</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #003366; --navy-dark: #002244; --navy-light: #004488;
+  --gold: #C8960C; --gold-light: #E8B020;
+  --bg: #F4F6FA; --surface: #FFFFFF; --border: #DDE3EE;
+  --text: #1A2340; --muted: #6B7A99;
+  --success: #1A7A4A; --danger: #C0392B;
+  --radius: 12px; --shadow: 0 2px 16px rgba(0,51,102,0.10);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+nav {
+  background: var(--navy); padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  position: sticky; top: 0; z-index: 10;
+}
+.nav-left { display: flex; align-items: center; gap: 16px; }
+.nav-back {
+  color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+}
+.nav-back:hover { color: #fff; }
+.nav-user {
+  background: rgba(200,150,12,0.2); border: 1px solid rgba(200,150,12,0.35);
+  border-radius: 20px; padding: 4px 12px;
+  color: var(--gold-light); font-size: 12px; font-weight: 500;
+}
+.timer {
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700;
+  color: var(--gold-light); transition: color 0.3s;
+  min-width: 56px; text-align: center;
+}
+.timer.warning { color: #ff6b6b; }
+.nav-info { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+.exam-wrap { max-width: 720px; margin: 0 auto; padding: 44px 24px 80px; }
+.exam-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+.exam-user-label { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.progress-wrap { margin-bottom: 32px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--navy), var(--gold)); border-radius: 3px; transition: width 0.4s ease; }
+
+.question-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 36px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.3s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.q-num { font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.q-text { font-size: 18px; font-weight: 500; line-height: 1.55; margin-bottom: 28px; color: var(--navy); }
+
+.options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: var(--radius);
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; transition: all 0.18s; font-size: 15px;
+}
+.option:hover { border-color: var(--navy); background: #EAF0FB; }
+.option.selected { border-color: var(--navy); background: #EAF0FB; }
+.option.correct { border-color: var(--success); background: #EAF7EE; color: var(--success); }
+.option.wrong { border-color: var(--danger); background: #FEF0EE; color: var(--danger); }
+.opt-letter {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+  background: var(--navy); color: #fff; flex-shrink: 0;
+}
+.option.selected .opt-letter { background: var(--gold); }
+.option.correct .opt-letter { background: var(--success); }
+.option.wrong .opt-letter { background: var(--danger); }
+
+.q-actions { display: flex; justify-content: space-between; align-items: center; }
+.btn {
+  padding: 11px 24px; border-radius: var(--radius);
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.2s;
+}
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
+.btn-secondary { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+.btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+/* ── RESULT ── */
+.result-screen { display: none; }
+.result-screen.show { display: block; }
+
+.result-card {
+  background: var(--surface); border-radius: 20px; padding: 48px 36px;
+  box-shadow: var(--shadow); text-align: center; margin-bottom: 28px;
+}
+.result-ring {
+  width: 130px; height: 130px; border-radius: 50%;
+  margin: 0 auto 24px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 5px solid var(--border); position: relative;
+}
+.result-ring.pass { border-color: var(--success); background: #EAF7EE; }
+.result-ring.fail { border-color: var(--danger); background: #FEF0EE; }
+.result-pct { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; }
+.result-pct.pass { color: var(--success); }
+.result-pct.fail { color: var(--danger); }
+.result-sub-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.result-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--navy); }
+.result-desc { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+.result-stats { display: flex; justify-content: center; gap: 48px; }
+.rs-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; }
+.rs-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── LEADERBOARD ── */
+.lb-card { background: var(--surface); border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow); }
+.lb-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.lb-entry {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; border-radius: 10px;
+  border: 1px solid var(--border); margin-bottom: 8px;
+  transition: background 0.15s;
+}
+.lb-entry:hover { background: var(--bg); }
+.lb-entry.me { border-color: var(--gold); background: var(--gold-pale); }
+.lb-rank { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px; width: 28px; text-align: center; color: var(--muted); }
+.lb-rank.gold { color: #C8960C; }
+.lb-rank.silver { color: #888; }
+.lb-rank.bronze { color: #8B5E3C; }
+.lb-name { flex: 1; font-size: 14px; font-weight: 500; }
+.lb-score { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--navy); font-size: 16px; }
+.lb-time { font-size: 12px; color: var(--muted); min-width: 44px; text-align: right; }
+
+.result-btns { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+/* ── ALREADY DONE ── */
+.done-screen {
+  display: none; min-height: calc(100vh - 64px);
+  align-items: center; justify-content: center; flex-direction: column;
+  text-align: center; padding: 40px;
+}
+.done-screen.show { display: flex; }
+
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .exam-wrap { padding: 24px 16px 60px; }
+  .question-card { padding: 22px; }
+  .result-stats { gap: 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="nav-back">← Geri</a>
+    <div class="nav-user" id="nav-user"></div>
+  </div>
+  <div class="timer" id="timer">--:--</div>
+  <div class="nav-info" id="nav-info"></div>
+</nav>
+
+<!-- ALREADY DONE -->
+<div class="done-screen" id="done-screen">
+  <div style="font-size:48px;margin-bottom:16px">🔒</div>
+  <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px">Bu sınaq artıq tamamlanıb</h2>
+  <p style="color:var(--muted);margin-bottom:28px">Hər sınav üçün yalnız 1 haq verilir. Nəticənizi admin vasitəsilə sildirib yenidən başlaya bilərsiniz.</p>
+  <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ana səhifəyə qayıt</a>
+</div>
+
+<!-- EXAM -->
+<div class="exam-wrap" id="exam-section" style="display:none">
+  <div class="exam-title" id="exam-title">Sınaq</div>
+  <div class="exam-user-label" id="exam-user-label"></div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-text">Sual 1 / ?</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="question-card" id="q-card">
+    <div class="q-num" id="q-num">Sual 1</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="q-actions">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">← Əvvəlki</button>
+      <button class="btn btn-primary"   id="btn-next" onclick="nextQ()">Növbəti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="exam-wrap result-screen" id="result-section">
+  <div class="result-card">
+    <div class="result-ring" id="result-ring">
+      <div class="result-pct" id="result-pct">0%</div>
+      <div class="result-sub-label">bal</div>
+    </div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-desc" id="result-desc"></div>
+    <div class="result-stats">
+      <div class="rs"><div class="rs-num" id="rs-correct" style="color:var(--success)">0</div><div class="rs-label">Doğru</div></div>
+      <div class="rs"><div class="rs-num" id="rs-wrong"   style="color:var(--danger)">0</div><div class="rs-label">Yanlış</div></div>
+      <div class="rs"><div class="rs-num" id="rs-time">0:00</div><div class="rs-label">Vaxt</div></div>
+    </div>
+  </div>
+
+  <div class="lb-card">
+    <div class="lb-title">🏆 Liderlik Cədvəli</div>
+    <div id="leaderboard"></div>
+  </div>
+
+  <div class="result-btns">
+    <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ana səhifəyə qayıt</a>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SUALLAR BURA YAZILIR
+// ============================================================
+const EXAM_CONFIG = {
+  title:      "Nümunə Sınaq",       // Sınaq adı (index.html-dəki adla EYNİ olmalıdır!)
+  timeLimit:  10,                    // Dəqiqə (0 = limitsiz)
+  passScore:  60,                    // Keçmə balı (%)
+};
+
+const QUESTIONS = [
+  {
+    q: "Azərbaycanda əmək müqaviləsi neçə növdə olur?",
+    opts: ["2 növ", "3 növ", "4 növ", "5 növ"],
+    correct: 1,
+  },
+  {
+    q: "Sınaq müddəti maksimum neçə ay ola bilər?",
+    opts: ["1 ay", "2 ay", "3 ay", "6 ay"],
+    correct: 2,
+  },
+  {
+    q: "İşçinin normal iş vaxtı həftədə neçə saatdır?",
+    opts: ["36 saat", "40 saat", "42 saat", "48 saat"],
+    correct: 1,
+  },
+  {
+    q: "Doğru / Yanlış: İşəgötürən əmək kitabçasını saxlamalıdır.",
+    opts: ["Doğru", "Yanlış"],
+    correct: 0,
+  },
+];
+// ============================================================
+
+const RESULTS_KEY = 'xb_results';
+const letters = ['A','B','C','D','E'];
+let currentUser = null, current = 0, answers = [], startTime = Date.now(), timerInt = null, elapsed = 0;
+
+function loadResults() { try { return JSON.parse(localStorage.getItem(RESULTS_KEY)) || []; } catch { return []; } }
+function saveResults(r) { localStorage.setItem(RESULTS_KEY, JSON.stringify(r)); }
+
+function init() {
+  currentUser = sessionStorage.getItem('xb_current_user');
+  if (!currentUser) { window.location.href = 'index.html'; return; }
+
+  document.getElementById('nav-user').textContent = '👤 ' + currentUser;
+  document.getElementById('exam-title').textContent = EXAM_CONFIG.title;
+  document.title = EXAM_CONFIG.title;
+  document.getElementById('exam-user-label').textContent = currentUser + ' olaraq daxil olmusunuz';
+
+  // Check if already done
+  const existing = loadResults().find(r => r.user === currentUser && r.exam === EXAM_CONFIG.title);
+  if (existing) {
+    document.getElementById('done-screen').classList.add('show');
+    return;
+  }
+
+  answers = new Array(QUESTIONS.length).fill(null);
+  startTime = Date.now();
+  if (EXAM_CONFIG.timeLimit > 0) startTimer();
+  document.getElementById('exam-section').style.display = 'block';
+  renderQ();
+}
+
+function startTimer() {
+  const total = EXAM_CONFIG.timeLimit * 60;
+  timerInt = setInterval(() => {
+    elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const left = total - elapsed;
+    if (left <= 0) { clearInterval(timerInt); showResult(); return; }
+    const m = Math.floor(left/60), s = left%60;
+    const el = document.getElementById('timer');
+    el.textContent = `${m}:${String(s).padStart(2,'0')}`;
+    el.className = 'timer' + (left < 60 ? ' warning' : '');
+  }, 1000);
+}
+
+function renderQ() {
+  const q = QUESTIONS[current], total = QUESTIONS.length;
+  document.getElementById('q-num').textContent = `Sual ${current+1}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('prog-text').textContent = `Sual ${current+1} / ${total}`;
+  const pct = Math.round((current/total)*100);
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('nav-info').textContent = `${current+1} / ${total}`;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = q.opts.map((o,i) => `
+    <div class="option ${answers[current]===i?'selected':''}" onclick="selectOpt(${i})">
+      <div class="opt-letter">${letters[i]}</div><span>${o}</span>
+    </div>`).join('');
+
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current===total-1 ? 'Bitir ✓' : 'Növbəti →';
+}
+
+function selectOpt(i) {
+  answers[current] = i;
+  document.querySelectorAll('.option').forEach((el,idx) => {
+    el.className = 'option' + (idx===i?' selected':'');
+  });
+}
+
+function prevQ() { if (current>0) { current--; renderQ(); } }
+function nextQ() { if (current===QUESTIONS.length-1) { showResult(); return; } current++; renderQ(); }
+
+function showResult() {
+  clearInterval(timerInt);
+  elapsed = Math.floor((Date.now()-startTime)/1000);
+  document.getElementById('exam-section').style.display='none';
+  document.getElementById('result-section').classList.add('show');
+
+  let correct = 0;
+  const details = answers.map((a,i) => {
+    const ok = a === QUESTIONS[i].correct;
+    if (ok) correct++;
+    return { qtext: QUESTIONS[i].q, answered: a, correct: ok };
+  });
+
+  const pct = Math.round((correct/QUESTIONS.length)*100);
+  const passed = pct >= EXAM_CONFIG.passScore;
+
+  document.getElementById('result-pct').textContent = pct+'%';
+  document.getElementById('result-pct').className = 'result-pct '+(passed?'pass':'fail');
+  document.getElementById('result-ring').className = 'result-ring '+(passed?'pass':'fail');
+  document.getElementById('result-title').textContent = passed ? '🎉 Təbrik edirik!' : '😔 Bu dəfə alınmadı';
+  document.getElementById('result-desc').textContent = passed
+    ? `${pct}% ilə keçdiniz. Keçmə balı: ${EXAM_CONFIG.passScore}%`
+    : `${pct}% aldınız. Keçmək üçün ${EXAM_CONFIG.passScore}% lazımdır.`;
+  const m=Math.floor(elapsed/60), s=elapsed%60;
+  document.getElementById('rs-correct').textContent = correct;
+  document.getElementById('rs-wrong').textContent = QUESTIONS.length-correct;
+  document.getElementById('rs-time').textContent = `${m}:${String(s).padStart(2,'0')}`;
+
+  // Save result
+  const results = loadResults();
+  results.push({
+    user: currentUser, exam: EXAM_CONFIG.title,
+    score: pct, correct, total: QUESTIONS.length,
+    elapsed, date: new Date().toLocaleDateString('az-AZ'),
+    details
+  });
+  saveResults(results);
+
+  renderLeaderboard(pct);
+}
+
+function renderLeaderboard(myScore) {
+  const results = loadResults().filter(r => r.exam === EXAM_CONFIG.title);
+  results.sort((a,b) => b.score-a.score || a.elapsed-b.elapsed);
+  const rankCls = ['gold','silver','bronze'];
+  const rankSym = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard').innerHTML = results.slice(0,15).map((r,i) => `
+    <div class="lb-entry ${r.user===currentUser?'me':''}">
+      <div class="lb-rank ${rankCls[i]||''}">${rankSym[i]||(i+1)}</div>
+      <div class="lb-name">${r.user}${r.user===currentUser?' (siz)':''}</div>
+      <div class="lb-score">${r.score}%</div>
+      <div class="lb-time">${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,'0')}</div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:14px">Hələ nəticə yoxdur.</div>';
+}
+
+init();
+</script>
+</body>
+</html>
