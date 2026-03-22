@@ -423,6 +423,7 @@ nav {
 const EXAMS_KEY = 'xb_exams';
 const RESULTS_KEY = 'xb_results';
 
+const SESSION_KEY = 'xb_session';
 let currentUser = null;
 
 // ── POPULATE LOGIN SELECT
@@ -435,6 +436,27 @@ function populateSelect() {
   });
 }
 
+// ── SESSION RESTORE (səhifə yeniləndikdə avtomatik giriş)
+function restoreSession() {
+  const saved = localStorage.getItem(SESSION_KEY);
+  if (!saved) return false;
+  const { user, isAdmin } = JSON.parse(saved);
+  if (!user) return false;
+  currentUser = user;
+  document.getElementById('chip-name').textContent = currentUser;
+  document.getElementById('user-chip').classList.add('show');
+  document.getElementById('btn-logout').classList.add('show');
+  document.getElementById('login-screen').style.display = 'none';
+  if (isAdmin) {
+    document.getElementById('admin-screen').classList.add('show');
+    renderAdmin();
+  } else {
+    document.getElementById('app-screen').classList.add('show');
+    renderGrid();
+  }
+  return true;
+}
+
 // ── LOGIN
 function doLogin() {
   const name = document.getElementById('login-name').value;
@@ -444,6 +466,7 @@ function doLogin() {
   if (!user) { err.classList.add('show'); return; }
   err.classList.remove('show');
   currentUser = user.name;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ user: currentUser, isAdmin: false }));
   document.getElementById('chip-name').textContent = currentUser;
   document.getElementById('user-chip').classList.add('show');
   document.getElementById('btn-logout').classList.add('show');
@@ -455,6 +478,7 @@ document.getElementById('login-pin').addEventListener('keydown', e => { if (e.ke
 
 function logout() {
   currentUser = null;
+  localStorage.removeItem(SESSION_KEY);
   document.getElementById('user-chip').classList.remove('show');
   document.getElementById('btn-logout').classList.remove('show');
   document.getElementById('login-pin').value = '';
@@ -520,9 +544,8 @@ function goExam(file, title) {
   const f = decodeURIComponent(file);
   const t = decodeURIComponent(title);
   if (!f) { alert('Bu sınaqın faylı hələ əlavə edilməyib.'); return; }
-  // Pass current user to exam page via sessionStorage
-  sessionStorage.setItem('xb_current_user', currentUser);
-  sessionStorage.setItem('xb_exam_title', t);
+  // Pass current user to exam page via localStorage
+  localStorage.setItem('xb_current_user', currentUser);
   window.location.href = f;
 }
 
@@ -539,6 +562,7 @@ function doAdminLogin() {
   const pin = document.getElementById('admin-pin-input').value;
   if (pin !== ADMIN_PIN) { document.getElementById('admin-error').classList.add('show'); return; }
   closeAdminLogin();
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ user: currentUser || 'admin', isAdmin: true }));
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app-screen').classList.remove('show');
   document.getElementById('admin-screen').classList.add('show');
@@ -548,6 +572,7 @@ document.getElementById('admin-pin-input').addEventListener('keydown', e => { if
 
 function closeAdmin() {
   document.getElementById('admin-screen').classList.remove('show');
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ user: currentUser, isAdmin: false }));
   if (currentUser) {
     document.getElementById('app-screen').classList.add('show');
   } else {
@@ -745,6 +770,7 @@ function deleteResult(examTitle, user) {
 
 // ── INIT
 populateSelect();
+restoreSession();
 </script>
 </body>
 </html>
