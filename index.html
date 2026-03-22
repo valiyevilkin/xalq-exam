@@ -544,8 +544,9 @@ function goExam(file, title) {
   const f = decodeURIComponent(file);
   const t = decodeURIComponent(title);
   if (!f) { alert('Bu sınaqın faylı hələ əlavə edilməyib.'); return; }
-  // Pass current user to exam page via localStorage
+  // Pass current user to exam page
   localStorage.setItem('xb_current_user', currentUser);
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ user: currentUser, isAdmin: false }));
   window.location.href = f;
 }
 
