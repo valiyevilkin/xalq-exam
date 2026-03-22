@@ -302,6 +302,24 @@ nav {
 }
 .admin-login-box h3 { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 20px; color: var(--navy); }
 
+/* ── EXAM MANAGEMENT ── */
+.exam-mgmt-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 32px; box-shadow: var(--shadow); }
+.exam-mgmt-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 20px; }
+.exam-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+.exam-form-grid .full { grid-column: 1 / -1; }
+.exam-form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.exam-form-group input, .exam-form-group select { width: 100%; padding: 10px 12px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.exam-form-group input:focus, .exam-form-group select:focus { border-color: var(--navy); }
+.btn-add-exam { background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 11px 24px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn-add-exam:hover { background: var(--navy-light); }
+.exam-list-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 8px; background: var(--bg); }
+.exam-list-icon { font-size: 22px; }
+.exam-list-info { flex: 1; }
+.exam-list-name { font-weight: 600; font-size: 14px; color: var(--navy); }
+.exam-list-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.btn-del-exam { background: #FEF0EE; color: var(--danger); border: 1px solid #FACCBC; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap; }
+.btn-del-exam:hover { background: var(--danger); color: #fff; }
+
 /* ── EMPTY ── */
 .empty { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-icon { font-size: 40px; margin-bottom: 12px; }
@@ -542,16 +560,80 @@ function renderAdmin() {
   const results = loadResults();
   const body    = document.getElementById('admin-body');
 
+  // ── SINAQ İDARƏETMƏSİ ──
+  const examListHtml = exams.length
+    ? exams.map((e, i) => `
+        <div class="exam-list-item">
+          <div class="exam-list-icon">${e.icon||'📋'}</div>
+          <div class="exam-list-info">
+            <div class="exam-list-name">${e.title}</div>
+            <div class="exam-list-meta">${e.count||0} sual · ${e.time||0} dəq. · Keçmə: ${e.pass||60}%</div>
+          </div>
+          <button class="btn-del-exam" onclick="deleteExam(${i})">🗑 Sil</button>
+        </div>`).join('')
+    : '<p style="color:var(--muted);font-size:14px">Hələ sınaq yoxdur.</p>';
+
+  let html = `
+  <div class="exam-mgmt-card">
+    <div class="exam-mgmt-title">📚 Sınaqların İdarəedilməsi</div>
+
+    <div style="margin-bottom:24px">
+      ${examListHtml}
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px">➕ Yeni Sınaq Əlavə Et</div>
+      <div class="exam-form-grid">
+        <div class="exam-form-group full">
+          <label>Mövzu adı *</label>
+          <input type="text" id="af-title" placeholder="məs. Kredit Əməliyyatları">
+        </div>
+        <div class="exam-form-group full">
+          <label>Fayl adı *</label>
+          <input type="text" id="af-file" placeholder="məs. kredit_emeliyyatlari.html">
+        </div>
+        <div class="exam-form-group">
+          <label>Emoji ikona</label>
+          <input type="text" id="af-icon" maxlength="2" placeholder="📋" value="📋">
+        </div>
+        <div class="exam-form-group">
+          <label>Çətinlik</label>
+          <select id="af-diff">
+            <option value="easy">Asan</option>
+            <option value="medium">Orta</option>
+            <option value="hard">Çətin</option>
+          </select>
+        </div>
+        <div class="exam-form-group">
+          <label>Sual sayı</label>
+          <input type="number" id="af-count" placeholder="50" min="1">
+        </div>
+        <div class="exam-form-group">
+          <label>Vaxt limiti (dəq.)</label>
+          <input type="number" id="af-time" placeholder="40" min="1">
+        </div>
+        <div class="exam-form-group">
+          <label>Keçmə balı (%)</label>
+          <input type="number" id="af-pass" placeholder="60" min="1" max="100">
+        </div>
+        <div class="exam-form-group">
+          <label>Qısa açıqlama</label>
+          <input type="text" id="af-desc" placeholder="məs. Əsas qaydalar">
+        </div>
+      </div>
+      <button class="btn-add-exam" onclick="addExamFromAdmin()">+ Əlavə et</button>
+    </div>
+  </div>`;
+
+  // ── NƏTİCƏLƏR ──
   if (!exams.length) {
-    body.innerHTML = '<p style="color:var(--muted)">Hələ sınaq yoxdur.</p>';
+    body.innerHTML = html + '<p style="color:var(--muted)">Nəticə göstərmək üçün əvvəlcə sınaq əlavə edin.</p>';
     return;
   }
 
-  let html = '';
   exams.forEach(exam => {
     const examResults = results.filter(r => r.exam === exam.title);
-    // Users who haven't taken it yet
-    const taken = examResults.map(r => r.user);
+    const taken    = examResults.map(r => r.user);
     const notTaken = USERS.filter(u => !taken.includes(u.name)).map(u => u.name);
 
     html += `<div class="admin-section-title">${exam.icon||'📋'} ${exam.title}</div>`;
@@ -563,6 +645,7 @@ function renderAdmin() {
     examResults.forEach((r, ri) => {
       const pass = r.score >= (exam.pass||60);
       const m = Math.floor(r.elapsed/60), s = r.elapsed%60;
+      const safeId = 'd-' + btoa(encodeURIComponent(exam.title)).replace(/=/g,'') + '-' + ri;
       html += `
       <tr>
         <td><strong>${r.user}</strong></td>
@@ -571,10 +654,10 @@ function renderAdmin() {
         <td style="color:var(--danger);font-weight:600">${r.total - r.correct}</td>
         <td>${m}:${String(s).padStart(2,'0')}</td>
         <td style="color:var(--muted);font-size:12px">${r.date||'—'}</td>
-        <td><button class="detail-toggle" onclick="toggleDetail('d-${exam.title}-${ri}')">Bax</button></td>
+        <td><button class="detail-toggle" onclick="toggleDetail('${safeId}')">Bax</button></td>
         <td><button class="btn-del" onclick="deleteResult('${encodeURIComponent(exam.title)}','${r.user}')">Sil</button></td>
       </tr>
-      <tr class="detail-row" id="d-${exam.title}-${ri}">
+      <tr class="detail-row" id="${safeId}">
         <td colspan="8" class="detail-cell">
           <div class="q-detail-grid">
             ${(r.details||[]).map((d,qi) => `
@@ -601,6 +684,50 @@ function renderAdmin() {
   });
 
   body.innerHTML = html;
+}
+
+function addExamFromAdmin() {
+  const title = document.getElementById('af-title').value.trim();
+  const file  = document.getElementById('af-file').value.trim();
+  if (!title) { alert('Mövzu adı məcburidir!'); return; }
+  if (!file)  { alert('Fayl adı məcburidir!'); return; }
+
+  const exams = JSON.parse(localStorage.getItem(EXAMS_KEY)) || [];
+  if (exams.find(e => e.title === title)) { alert('Bu adda sınaq artıq mövcuddur!'); return; }
+
+  exams.push({
+    title,
+    file,
+    icon:  document.getElementById('af-icon').value.trim() || '📋',
+    diff:  document.getElementById('af-diff').value,
+    count: parseInt(document.getElementById('af-count').value) || 0,
+    time:  parseInt(document.getElementById('af-time').value)  || 0,
+    pass:  parseInt(document.getElementById('af-pass').value)  || 60,
+    desc:  document.getElementById('af-desc').value.trim(),
+    created: Date.now(),
+  });
+  localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
+  renderAdmin();
+  renderGrid();
+}
+
+function deleteExam(idx) {
+  const exams = loadExams();
+  const exam  = exams[idx];
+  if (!exam) return;
+  if (!confirm(`"${exam.title}" sınaqı silinsin?\n\nDiqqət: bu sınaqın bütün nəticələri də silinəcək!`)) return;
+
+  // localStorage-dakı sınaqları yenilə (HARDCODED olanları silmək olmaz)
+  const saved = JSON.parse(localStorage.getItem(EXAMS_KEY)) || [];
+  const newSaved = saved.filter(e => e.title !== exam.title);
+  localStorage.setItem(EXAMS_KEY, JSON.stringify(newSaved));
+
+  // Nəticələri sil
+  const results = loadResults().filter(r => r.exam !== exam.title);
+  saveResults(results);
+
+  renderAdmin();
+  renderGrid();
 }
 
 function toggleDetail(id) {
