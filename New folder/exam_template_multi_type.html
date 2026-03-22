@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sınaq</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c27;
+    --border: rgba(255,255,255,0.07); --accent: #6c63ff;
+    --accent2: #ff6584; --accent3: #43e97b;
+    --text: #f0f0f8; --muted: #7070a0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  nav {
+    padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,10,15,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+  }
+  .nav-back {
+    color: var(--muted); font-size: 14px; text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--text); }
+  .timer {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+    color: var(--accent);
+    transition: color 0.3s;
+  }
+  .timer.warning { color: var(--accent2); }
+  .nav-info { font-size: 13px; color: var(--muted); }
+
+  .exam-wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  .exam-header { margin-bottom: 40px; }
+  .exam-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .progress-wrap { margin-top: 20px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px;
+    animation: fadeUp 0.3s ease both;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .q-num { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .q-text { font-size: 19px; font-weight: 500; line-height: 1.5; margin-bottom: 28px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer; transition: all 0.18s;
+    font-size: 15px;
+  }
+  .option:hover { border-color: rgba(108,99,255,0.4); background: rgba(108,99,255,0.08); }
+  .option.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+  .option.correct { border-color: var(--accent3); background: rgba(67,233,123,0.12); color: var(--accent3); }
+  .option.wrong { border-color: var(--accent2); background: rgba(255,101,132,0.12); color: var(--accent2); }
+  .opt-letter {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    background: rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+
+  .q-actions { display: flex; justify-content: space-between; align-items: center; }
+  .btn {
+    padding: 12px 28px; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .feedback {
+    margin-top: 16px; padding: 14px 18px; border-radius: 12px;
+    font-size: 14px; line-height: 1.5; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(67,233,123,0.1); border: 1px solid rgba(67,233,123,0.2); color: var(--accent3); }
+  .feedback.bad { background: rgba(255,101,132,0.1); border: 1px solid rgba(255,101,132,0.2); color: var(--accent2); }
+
+  /* RESULT */
+  .result-screen {
+    display: none; text-align: center; padding: 60px 20px;
+  }
+  .result-screen.show { display: block; }
+  .result-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    margin: 0 auto 28px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border: 4px solid var(--accent);
+    background: rgba(108,99,255,0.1);
+  }
+  .result-circle.pass { border-color: var(--accent3); background: rgba(67,233,123,0.1); }
+  .result-circle.fail { border-color: var(--accent2); background: rgba(255,101,132,0.1); }
+  .result-pct { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; }
+  .result-pct.pass { color: var(--accent3); }
+  .result-pct.fail { color: var(--accent2); }
+  .result-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .result-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+  .result-sub { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
+  .result-stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 40px; }
+  .rs { }
+  .rs-num { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; }
+  .rs-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* LEADERBOARD */
+  .lb-section { margin-top: 48px; text-align: left; }
+  .lb-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .lb-name-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .lb-name-row input {
+    flex: 1; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    padding: 10px 14px; outline: none;
+  }
+  .lb-name-row input:focus { border-color: rgba(108,99,255,0.5); }
+  .lb-entry {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 12px;
+    background: var(--surface2); margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .lb-rank { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; width: 28px; color: var(--muted); }
+  .lb-rank.gold { color: #ffc107; }
+  .lb-rank.silver { color: #b0b0b0; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-name { flex: 1; font-size: 15px; }
+  .lb-score { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); }
+  .lb-date { font-size: 12px; color: var(--muted); }
+
+  .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* MULTI-SELECT hint */
+  .multi-hint {
+    font-size: 12px; color: var(--accent2); margin-bottom: 14px;
+    padding: 8px 12px; border-radius: 8px;
+    background: rgba(255,101,132,0.08); border: 1px solid rgba(255,101,132,0.2);
+    display: none;
+  }
+  .multi-hint.show { display: block; }
+
+  /* TEXT INPUT */
+  .text-answer-wrap { margin-bottom: 32px; }
+  .text-answer-wrap input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 16px;
+    padding: 14px 18px; outline: none; transition: border-color 0.2s;
+  }
+  .text-answer-wrap input:focus { border-color: rgba(108,99,255,0.5); }
+  .text-answer-wrap input.correct { border-color: var(--accent3); background: rgba(67,233,123,0.08); }
+  .text-answer-wrap input.wrong   { border-color: var(--accent2); background: rgba(255,101,132,0.08); }
+
+  @media (max-width: 600px) {
+    nav { padding: 14px 20px; }
+    .exam-wrap { padding: 28px 16px 60px; }
+    .question-card { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">← Geri</a>
+  <div class="timer" id="timer">--:--</div>
+  <div class="nav-info" id="nav-info"></div>
+</nav>
+
+<div class="exam-wrap">
+  <div id="exam-section">
+    <div class="exam-header">
+      <div class="exam-title" id="exam-title">Sınaq</div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="prog-text">Sual 1 / ?</span>
+          <span id="prog-pct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="question-card" id="q-card">
+      <div class="q-num" id="q-num">Sual 1</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="q-actions">
+        <button class="btn btn-secondary" id="btn-prev" onclick="prevQ()">← Əvvəlki</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextQ()">Növbəti →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-screen" id="result-section">
+    <div class="result-circle" id="result-circle">
+      <div class="result-pct" id="result-pct">0%</div>
+      <div class="result-label">bal</div>
+    </div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-sub" id="result-sub"></div>
+    <div class="result-stats">
+      <div class="rs"><div class="rs-num" id="rs-correct" style="color:var(--accent3)">0</div><div class="rs-label">Doğru</div></div>
+      <div class="rs"><div class="rs-num" id="rs-wrong" style="color:var(--accent2)">0</div><div class="rs-label">Yanlış</div></div>
+      <div class="rs"><div class="rs-num" id="rs-time">0:00</div><div class="rs-label">Vaxt</div></div>
+    </div>
+
+    <div class="lb-section">
+      <div class="lb-title">🏆 Liderlik Cədvəli</div>
+      <div class="lb-name-row">
+        <input type="text" id="lb-name" placeholder="Adınızı yazın...">
+        <button class="btn btn-primary" onclick="submitScore()">Əlavə et</button>
+      </div>
+      <div id="leaderboard"></div>
+    </div>
+
+    <div class="result-btns" style="margin-top:32px">
+      <button class="btn btn-secondary" onclick="retryExam()">Yenidən cəhd et</button>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Ana səhifə</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SUALLAR BURA YAZILIR — bu şablonu kopyalayıb öz suallarınızı əlavə edin
+// ============================================================
+const EXAM_CONFIG = {
+  title: "Nümunə Sınaq",          // Sınaq adı
+  timeLimit: 10,                   // Dəqiqə ilə vaxt limiti (0 = limitsiz)
+  passScore: 60,                   // Keçmə balı (%)
+  storageKey: "sinaq_numune",      // Hər sınaq üçün unikal açar!
+};
+
+const QUESTIONS = [
+  {
+    q: "Azərbaycanda əmək müqaviləsi neçə növdə olur?",
+    opts: ["2 növ", "3 növ", "4 növ", "5 növ"],
+    correct: 1,
+    // explanation: "Doğru cəvabın izahı bura yazılır (istəyə bağlı)"
+  },
+  {
+    q: "Sınaq müddəti maksimum neçə ay ola bilər?",
+    opts: ["1 ay", "2 ay", "3 ay", "6 ay"],
+    correct: 2,
+  },
+  {
+    // TİP 2: Birdən çox düzgün cavab — correct massiv olur, multi: true əlavə edin
+    q: "Aşağıdakılardan hansıları əmək müqaviləsinin tərəflərindəndir?",
+    opts: ["İşçi", "Dövlət", "İşəgötürən", "Bank"],
+    correct: [0, 2],
+    multi: true,
+  },
+  {
+    // TİP 3: Doğru/Yanlış — opts ["Doğru","Yanlış"], correct 0 və ya 1
+    q: "Doğru / Yanlış: İşəgötürən əmək kitabçasını saxlamalıdır.",
+    opts: ["Doğru", "Yanlış"],
+    correct: 0,
+  },
+  {
+    // TİP 4: Mətn cavabı — type:"text", answer: cavab
+    q: "Azərbaycanda minimum əmək haqqı 2024-cü ildə neçə manat təşkil edir?",
+    type: "text",
+    answer: "400",
+    explanation: "2024-cü ildə minimum əmək haqqı 400 AZN-dir.",
+  },
+];
+// ============================================================
+
+let current = 0, answers = [], startTime = Date.now(), timerInt = null, elapsed = 0;
+const letters = ['A','B','C','D','E'];
+
+// answers[i] for each question type:
+//   single: index (number) or null
+//   multi:  Set of selected indices
+//   text:   string typed by user
+
+function init() {
+  document.getElementById('exam-title').textContent = EXAM_CONFIG.title;
+  document.title = EXAM_CONFIG.title;
+  answers = QUESTIONS.map(q => {
+    if (q.type === 'text') return '';
+    if (q.multi) return new Set();
+    return null;
+  });
+  startTime = Date.now();
+  if (EXAM_CONFIG.timeLimit > 0) startTimer();
+  renderQ();
+}
+
+function startTimer() {
+  const total = EXAM_CONFIG.timeLimit * 60;
+  timerInt = setInterval(() => {
+    elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const left = total - elapsed;
+    if (left <= 0) { clearInterval(timerInt); showResult(); return; }
+    const m = Math.floor(left / 60), s = left % 60;
+    const el = document.getElementById('timer');
+    el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    el.className = 'timer' + (left < 60 ? ' warning' : '');
+  }, 1000);
+}
+
+function renderQ() {
+  const q = QUESTIONS[current];
+  const total = QUESTIONS.length;
+  document.getElementById('q-num').textContent = `Sual ${current + 1}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('prog-text').textContent = `Sual ${current + 1} / ${total}`;
+  const pct = Math.round(((current) / total) * 100);
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('nav-info').textContent = `${current + 1} / ${total}`;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+
+  const opts = document.getElementById('options');
+
+  // TİP 4: Mətn cavabı
+  if (q.type === 'text') {
+    opts.innerHTML = `
+      <div class="text-answer-wrap">
+        <input type="text" id="text-input" placeholder="Cavabınızı yazın..."
+          value="${answers[current] || ''}"
+          oninput="answers[${current}] = this.value.trim()"
+        >
+      </div>`;
+    document.getElementById('multi-hint') && (document.getElementById('multi-hint').className = 'multi-hint');
+  }
+  // TİP 2: Çox seçimli
+  else if (q.multi) {
+    const sel = answers[current]; // Set
+    let hint = document.getElementById('multi-hint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'multi-hint';
+      hint.className = 'multi-hint';
+      document.getElementById('q-text').after(hint);
+    }
+    hint.textContent = '⚡ Birdən çox cavab seçə bilərsiniz';
+    hint.className = 'multi-hint show';
+
+    opts.innerHTML = q.opts.map((o, i) => `
+      <div class="option ${sel.has(i) ? 'selected' : ''}" onclick="selectMulti(${i})">
+        <div class="opt-letter">${letters[i]}</div>
+        <span>${o}</span>
+      </div>
+    `).join('');
+  }
+  // TİP 1 & 3: Tək seçimli
+  else {
+    let hint = document.getElementById('multi-hint');
+    if (hint) hint.className = 'multi-hint';
+
+    opts.innerHTML = q.opts.map((o, i) => `
+      <div class="option ${answers[current] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
+        <div class="opt-letter">${letters[i]}</div>
+        <span>${o}</span>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('btn-prev').disabled = current === 0;
+  const isLast = current === total - 1;
+  document.getElementById('btn-next').textContent = isLast ? 'Bitir ✓' : 'Növbəti →';
+}
+
+function selectOpt(i) {
+  answers[current] = i;
+  document.querySelectorAll('.option').forEach((el, idx) => {
+    el.className = 'option' + (idx === i ? ' selected' : '');
+  });
+}
+
+function selectMulti(i) {
+  const sel = answers[current]; // Set
+  if (sel.has(i)) sel.delete(i); else sel.add(i);
+  document.querySelectorAll('.option').forEach((el, idx) => {
+    el.className = 'option' + (sel.has(idx) ? ' selected' : '');
+  });
+}
+
+function prevQ() { if (current > 0) { current--; renderQ(); } }
+
+function nextQ() {
+  if (current === QUESTIONS.length - 1) { showResult(); return; }
+  current++;
+  renderQ();
+}
+
+function showResult() {
+  clearInterval(timerInt);
+  elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('exam-section').style.display = 'none';
+  const rs = document.getElementById('result-section');
+  rs.className = 'result-screen show';
+
+  let correct = 0;
+  answers.forEach((a, i) => {
+    const q = QUESTIONS[i];
+    if (q.type === 'text') {
+      // Mətn müqayisəsi: case-insensitive, boşluqsuz
+      if (String(a).trim().toLowerCase() === String(q.answer).trim().toLowerCase()) correct++;
+    } else if (q.multi) {
+      // Çox cavab: Set eyni olmalıdır
+      const expected = new Set(q.correct);
+      if (a.size === expected.size && [...a].every(v => expected.has(v))) correct++;
+    } else {
+      if (a === q.correct) correct++;
+    }
+  });
+
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  const passed = pct >= EXAM_CONFIG.passScore;
+
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-pct').className = 'result-pct ' + (passed ? 'pass' : 'fail');
+  document.getElementById('result-circle').className = 'result-circle ' + (passed ? 'pass' : 'fail');
+  document.getElementById('result-title').textContent = passed ? '🎉 Təbrik edirik, keçdiniz!' : '😔 Bu dəfə alınmadı';
+  document.getElementById('result-sub').textContent = passed
+    ? `${pct}% ilə uğurla tamamladınız. Keçmə balı: ${EXAM_CONFIG.passScore}%`
+    : `${pct}% aldınız. Keçmək üçün ${EXAM_CONFIG.passScore}% lazımdır.`;
+
+  const m = Math.floor(elapsed / 60), s = elapsed % 60;
+  document.getElementById('rs-correct').textContent = correct;
+  document.getElementById('rs-wrong').textContent = QUESTIONS.length - correct;
+  document.getElementById('rs-time').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+
+  window._lastScore = { score: pct, correct, total: QUESTIONS.length, elapsed };
+  renderLeaderboard();
+}
+
+function submitScore() {
+  const name = document.getElementById('lb-name').value.trim();
+  if (!name) { alert('Adınızı yazın!'); return; }
+  const sc = window._lastScore;
+  const lb = getLeaderboard();
+  lb.push({ name, score: sc.score, correct: sc.correct, elapsed: sc.elapsed, date: new Date().toLocaleDateString('az-AZ') });
+  lb.sort((a,b) => b.score - a.score || a.elapsed - b.elapsed);
+  localStorage.setItem(EXAM_CONFIG.storageKey + '_lb', JSON.stringify(lb));
+  document.getElementById('lb-name').value = '';
+  renderLeaderboard();
+}
+
+function getLeaderboard() {
+  try { return JSON.parse(localStorage.getItem(EXAM_CONFIG.storageKey + '_lb')) || []; }
+  catch { return []; }
+}
+
+function renderLeaderboard() {
+  const lb = getLeaderboard();
+  const rankClasses = ['gold','silver','bronze'];
+  const rankSymbols = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard').innerHTML = lb.length
+    ? lb.slice(0,10).map((e,i) => `
+      <div class="lb-entry">
+        <div class="lb-rank ${rankClasses[i] || ''}">${rankSymbols[i] || (i+1)}</div>
+        <div class="lb-name">${e.name}</div>
+        <div class="lb-score">${e.score}%</div>
+        <div class="lb-date">${e.date || ''}</div>
+      </div>`).join('')
+    : '<div style="color:var(--muted);font-size:14px;padding:12px 0">Hələ nəticə yoxdur. İlk siz olun!</div>';
+}
+
+function retryExam() {
+  current = 0; elapsed = 0;
+  answers = QUESTIONS.map(q => {
+    if (q.type === 'text') return '';
+    if (q.multi) return new Set();
+    return null;
+  });
+  document.getElementById('result-section').className = 'result-screen';
+  document.getElementById('exam-section').style.display = 'block';
+  document.getElementById('timer').className = 'timer';
+  startTime = Date.now();
+  if (EXAM_CONFIG.timeLimit > 0) startTimer();
+  renderQ();
+}
+
+init();
+</script>
+</body>
+</html>

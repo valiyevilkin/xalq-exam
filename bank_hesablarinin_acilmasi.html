@@ -17,7 +17,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* NAV */
 nav {
   background: var(--navy); padding: 0 40px;
   display: flex; align-items: center; justify-content: space-between;
@@ -37,20 +36,12 @@ nav {
 }
 .timer {
   font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700;
-  color: var(--gold-light); transition: color 0.3s; min-width: 56px; text-align: center;
+  color: var(--gold-light); transition: color 0.3s;
+  min-width: 56px; text-align: center;
 }
 .timer.warning { color: #ff6b6b; }
 .nav-info { font-size: 13px; color: rgba(255,255,255,0.6); }
 
-/* ALREADY DONE SCREEN */
-.done-screen {
-  display: none; min-height: calc(100vh - 64px);
-  align-items: center; justify-content: center; flex-direction: column;
-  text-align: center; padding: 40px;
-}
-.done-screen.show { display: flex; }
-
-/* EXAM WRAP */
 .exam-wrap { max-width: 720px; margin: 0 auto; padding: 44px 24px 80px; }
 .exam-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
 .exam-user-label { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
@@ -62,21 +53,14 @@ nav {
 
 .question-card {
   background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 36px; box-shadow: var(--shadow);
+  border-radius: 20px; padding: 36px;
+  box-shadow: var(--shadow);
   animation: fadeUp 0.3s ease;
 }
 @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 .q-num { font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-.q-type-hint {
-  display: inline-block; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 20px; margin-bottom: 12px;
-}
-.q-type-hint.multi { background: #FFF3CD; color: #856404; border: 1px solid #FFEAA7; }
-.q-type-hint.text  { background: #E8F4FD; color: #0c5460; border: 1px solid #BEE5EB; }
-.q-type-hint.tf    { background: #EAF7EE; color: var(--success); border: 1px solid #A8D8B8; }
-.q-text { font-size: 18px; font-weight: 500; line-height: 1.55; margin-bottom: 24px; color: var(--navy); }
+.q-text { font-size: 18px; font-weight: 500; line-height: 1.55; margin-bottom: 28px; color: var(--navy); }
 
-/* OPTIONS — single & multi */
 .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
 .option {
   display: flex; align-items: center; gap: 14px;
@@ -87,102 +71,89 @@ nav {
 .option:hover { border-color: var(--navy); background: #EAF0FB; }
 .option.selected { border-color: var(--navy); background: #EAF0FB; }
 .option.correct { border-color: var(--success); background: #EAF7EE; color: var(--success); }
-.option.wrong   { border-color: var(--danger);  background: #FEF0EE; color: var(--danger); }
+.option.wrong { border-color: var(--danger); background: #FEF0EE; color: var(--danger); }
 .opt-letter {
-  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  width: 30px; height: 30px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 13px;
-  background: var(--navy); color: #fff;
+  background: var(--navy); color: #fff; flex-shrink: 0;
 }
-.option.selected .opt-letter { background: var(--gold); color: var(--navy); }
-.option.correct  .opt-letter { background: var(--success); color: #fff; }
-.option.wrong    .opt-letter { background: var(--danger);  color: #fff; }
-/* Multi-select uses checkbox style */
-.opt-check {
-  width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
-  border: 2px solid var(--border); background: var(--surface);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; transition: all 0.15s;
-}
-.option.selected .opt-check { background: var(--navy); border-color: var(--navy); color: #fff; }
-.option.correct  .opt-check { background: var(--success); border-color: var(--success); color: #fff; }
-.option.wrong    .opt-check { background: var(--danger);  border-color: var(--danger);  color: #fff; }
+.option.selected .opt-letter { background: var(--gold); }
+.option.correct .opt-letter { background: var(--success); }
+.option.wrong .opt-letter { background: var(--danger); }
 
-/* TEXT INPUT */
-.text-answer-wrap { margin-bottom: 28px; }
-.text-answer-wrap input {
-  width: 100%; background: var(--bg); border: 1.5px solid var(--border);
-  border-radius: var(--radius); color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 16px;
-  padding: 14px 18px; outline: none; transition: border-color 0.2s;
-}
-.text-answer-wrap input:focus  { border-color: var(--navy); }
-.text-answer-wrap input.correct { border-color: var(--success); background: #EAF7EE; }
-.text-answer-wrap input.wrong   { border-color: var(--danger);  background: #FEF0EE; }
-
-/* ACTIONS */
 .q-actions { display: flex; justify-content: space-between; align-items: center; }
 .btn {
   padding: 11px 24px; border-radius: var(--radius);
   font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
   cursor: pointer; border: none; transition: all 0.2s;
 }
-.btn-primary   { background: var(--navy); color: #fff; }
-.btn-primary:hover  { background: var(--navy-light); transform: translateY(-1px); }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
 .btn-secondary { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
 .btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
-.btn:disabled  { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
 
-/* RESULT */
+/* ── RESULT ── */
 .result-screen { display: none; }
 .result-screen.show { display: block; }
+
 .result-card {
   background: var(--surface); border-radius: 20px; padding: 48px 36px;
-  box-shadow: var(--shadow); text-align: center; margin-bottom: 24px;
+  box-shadow: var(--shadow); text-align: center; margin-bottom: 28px;
 }
 .result-ring {
   width: 130px; height: 130px; border-radius: 50%;
   margin: 0 auto 24px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border: 5px solid var(--border);
+  border: 5px solid var(--border); position: relative;
 }
 .result-ring.pass { border-color: var(--success); background: #EAF7EE; }
-.result-ring.fail { border-color: var(--danger);  background: #FEF0EE; }
+.result-ring.fail { border-color: var(--danger); background: #FEF0EE; }
 .result-pct { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; }
 .result-pct.pass { color: var(--success); }
 .result-pct.fail { color: var(--danger); }
 .result-sub-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .result-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--navy); }
-.result-desc  { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+.result-desc { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
 .result-stats { display: flex; justify-content: center; gap: 48px; }
-.rs-num   { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; }
+.rs-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; }
 .rs-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* LEADERBOARD */
-.lb-card { background: var(--surface); border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 24px; }
-.lb-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 16px; }
+/* ── LEADERBOARD ── */
+.lb-card { background: var(--surface); border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow); }
+.lb-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .lb-entry {
   display: flex; align-items: center; gap: 14px;
   padding: 12px 16px; border-radius: 10px;
   border: 1px solid var(--border); margin-bottom: 8px;
+  transition: background 0.15s;
 }
-.lb-entry.me { border-color: var(--gold); background: #FFF8E7; }
+.lb-entry:hover { background: var(--bg); }
+.lb-entry.me { border-color: var(--gold); background: var(--gold-pale); }
 .lb-rank { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px; width: 28px; text-align: center; color: var(--muted); }
-.lb-rank.gold   { color: #C8960C; }
+.lb-rank.gold { color: #C8960C; }
 .lb-rank.silver { color: #888; }
 .lb-rank.bronze { color: #8B5E3C; }
-.lb-name  { flex: 1; font-size: 14px; font-weight: 500; }
+.lb-name { flex: 1; font-size: 14px; font-weight: 500; }
 .lb-score { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--navy); font-size: 16px; }
-.lb-time  { font-size: 12px; color: var(--muted); min-width: 44px; text-align: right; }
+.lb-time { font-size: 12px; color: var(--muted); min-width: 44px; text-align: right; }
 
-.result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.result-btns { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+/* ── ALREADY DONE ── */
+.done-screen {
+  display: none; min-height: calc(100vh - 64px);
+  align-items: center; justify-content: center; flex-direction: column;
+  text-align: center; padding: 40px;
+}
+.done-screen.show { display: flex; }
 
 @media (max-width: 600px) {
   nav { padding: 0 16px; }
   .exam-wrap { padding: 24px 16px 60px; }
   .question-card { padding: 22px; }
   .result-stats { gap: 24px; }
-  .result-card { padding: 32px 20px; }
 }
 </style>
 </head>
@@ -197,15 +168,15 @@ nav {
   <div class="nav-info" id="nav-info"></div>
 </nav>
 
-<!-- ALREADY DONE SCREEN -->
+<!-- ALREADY DONE -->
 <div class="done-screen" id="done-screen">
-  <div style="font-size:52px;margin-bottom:20px">🔒</div>
-  <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:10px">Bu sınaq artıq tamamlanıb</h2>
-  <p style="color:var(--muted);max-width:400px;line-height:1.6;margin-bottom:28px">Hər sınav üçün yalnız 1 haq verilir. Nəticənizi yenidən başlamaq üçün adminə müraciət edin.</p>
+  <div style="font-size:48px;margin-bottom:16px">🔒</div>
+  <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px">Bu sınaq artıq tamamlanıb</h2>
+  <p style="color:var(--muted);margin-bottom:28px">Hər sınav üçün yalnız 1 haq verilir. Nəticənizi admin vasitəsilə sildirib yenidən başlaya bilərsiniz.</p>
   <a href="index.html" class="btn btn-primary" style="text-decoration:none">Ana səhifəyə qayıt</a>
 </div>
 
-<!-- EXAM SECTION -->
+<!-- EXAM -->
 <div class="exam-wrap" id="exam-section" style="display:none">
   <div class="exam-title" id="exam-title">Sınaq</div>
   <div class="exam-user-label" id="exam-user-label"></div>
@@ -216,9 +187,8 @@ nav {
     </div>
     <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
-  <div class="question-card">
+  <div class="question-card" id="q-card">
     <div class="q-num" id="q-num">Sual 1</div>
-    <div id="q-type-hint"></div>
     <div class="q-text" id="q-text"></div>
     <div class="options" id="options"></div>
     <div class="q-actions">
@@ -228,7 +198,7 @@ nav {
   </div>
 </div>
 
-<!-- RESULT SECTION -->
+<!-- RESULT -->
 <div class="exam-wrap result-screen" id="result-section">
   <div class="result-card">
     <div class="result-ring" id="result-ring">
@@ -236,7 +206,7 @@ nav {
       <div class="result-sub-label">bal</div>
     </div>
     <div class="result-title" id="result-title"></div>
-    <div class="result-desc"  id="result-desc"></div>
+    <div class="result-desc" id="result-desc"></div>
     <div class="result-stats">
       <div class="rs"><div class="rs-num" id="rs-correct" style="color:var(--success)">0</div><div class="rs-label">Doğru</div></div>
       <div class="rs"><div class="rs-num" id="rs-wrong"   style="color:var(--danger)">0</div><div class="rs-label">Yanlış</div></div>
@@ -257,48 +227,34 @@ nav {
 <script>
 // ============================================================
 // SUALLAR BURA YAZILIR
-// Hər sınaq faylında bu hissəni dəyişin
 // ============================================================
 const EXAM_CONFIG = {
-  title:     "Nümunə Sınaq",   // index.html-dəki kart adı ilə EYNİ olmalıdır!
-  timeLimit: 10,                // Dəqiqə (0 = limitsiz)
-  passScore: 60,                // Keçmə balı (%)
+  title:      "Bank hesablarının açılması, aparılması və bağlanması Qaydaları",       // Sınaq adı (index.html-dəki adla EYNİ olmalıdır!)
+  timeLimit:  45,                    // Dəqiqə (0 = limitsiz)
+  passScore:  50,                    // Keçmə balı (%)
 };
 
 const QUESTIONS = [
-
-  // ── TİP 1: Çoxdan seçməli — tək doğru cavab ──────────────
   {
     q: "Azərbaycanda əmək müqaviləsi neçə növdə olur?",
     opts: ["2 növ", "3 növ", "4 növ", "5 növ"],
     correct: 1,
-    // explanation: "İzah bura yazıla bilər (istəyə bağlı)"
   },
-
-  // ── TİP 2: Çoxdan seçməli — birdən çox doğru cavab ───────
   {
-    q: "Aşağıdakılardan hansıları əmək müqaviləsinin tərəflərindəndir?",
-    opts: ["İşçi", "Dövlət", "İşəgötürən", "Bank"],
-    correct: [0, 2],   // ← massiv kimi yazılır
-    multi: true,
+    q: "Sınaq müddəti maksimum neçə ay ola bilər?",
+    opts: ["1 ay", "2 ay", "3 ay", "6 ay"],
+    correct: 2,
   },
-
-  // ── TİP 3: Doğru / Yanlış ────────────────────────────────
   {
-    q: "İşəgötürən əmək kitabçasını saxlamalıdır.",
+    q: "İşçinin normal iş vaxtı həftədə neçə saatdır?",
+    opts: ["36 saat", "40 saat", "42 saat", "48 saat"],
+    correct: 1,
+  },
+  {
+    q: "Doğru / Yanlış: İşəgötürən əmək kitabçasını saxlamalıdır.",
     opts: ["Doğru", "Yanlış"],
-    correct: 0,        // 0 = Doğru, 1 = Yanlış
-    tf: true,          // doğru/yanlış olduğunu bildirir
+    correct: 0,
   },
-
-  // ── TİP 4: Mətn cavabı ───────────────────────────────────
-  {
-    q: "Azərbaycanda minimum əmək haqqı 2024-cü ildə neçə manat təşkil edir?",
-    type: "text",
-    answer: "400",     // istifadəçinin yazdığı bu ilə müqayisə edilir
-    explanation: "2024-cü ildə minimum əmək haqqı 400 AZN-dir.",
-  },
-
 ];
 // ============================================================
 
@@ -309,14 +265,6 @@ let currentUser = null, current = 0, answers = [], startTime = Date.now(), timer
 function loadResults() { try { return JSON.parse(localStorage.getItem(RESULTS_KEY)) || []; } catch { return []; } }
 function saveResults(r) { localStorage.setItem(RESULTS_KEY, JSON.stringify(r)); }
 
-function initAnswers() {
-  return QUESTIONS.map(q => {
-    if (q.type === 'text') return '';
-    if (q.multi) return new Set();
-    return null;
-  });
-}
-
 function init() {
   currentUser = sessionStorage.getItem('xb_current_user');
   if (!currentUser) { window.location.href = 'index.html'; return; }
@@ -326,14 +274,14 @@ function init() {
   document.title = EXAM_CONFIG.title;
   document.getElementById('exam-user-label').textContent = currentUser + ' olaraq daxil olmusunuz';
 
-  // 1 haq yoxlaması
+  // Check if already done
   const existing = loadResults().find(r => r.user === currentUser && r.exam === EXAM_CONFIG.title);
   if (existing) {
     document.getElementById('done-screen').classList.add('show');
     return;
   }
 
-  answers = initAnswers();
+  answers = new Array(QUESTIONS.length).fill(null);
   startTime = Date.now();
   if (EXAM_CONFIG.timeLimit > 0) startTimer();
   document.getElementById('exam-section').style.display = 'block';
@@ -355,129 +303,63 @@ function startTimer() {
 
 function renderQ() {
   const q = QUESTIONS[current], total = QUESTIONS.length;
-  document.getElementById('q-num').textContent = `Sual ${current + 1}`;
+  document.getElementById('q-num').textContent = `Sual ${current+1}`;
   document.getElementById('q-text').textContent = q.q;
-  document.getElementById('prog-text').textContent = `Sual ${current + 1} / ${total}`;
-  const pct = Math.round((current / total) * 100);
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('nav-info').textContent = `${current + 1} / ${total}`;
-
-  // Tip göstəricisi
-  const hintEl = document.getElementById('q-type-hint');
-  if (q.type === 'text') {
-    hintEl.innerHTML = '<span class="q-type-hint text">✏️ Mətn cavabı</span>';
-  } else if (q.multi) {
-    hintEl.innerHTML = '<span class="q-type-hint multi">☑️ Birdən çox cavab seçə bilərsiniz</span>';
-  } else if (q.tf) {
-    hintEl.innerHTML = '<span class="q-type-hint tf">✓✗ Doğru / Yanlış</span>';
-  } else {
-    hintEl.innerHTML = '';
-  }
+  document.getElementById('prog-text').textContent = `Sual ${current+1} / ${total}`;
+  const pct = Math.round((current/total)*100);
+  document.getElementById('prog-pct').textContent = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('nav-info').textContent = `${current+1} / ${total}`;
 
   const opts = document.getElementById('options');
-
-  // ── TİP 4: Mətn cavabı
-  if (q.type === 'text') {
-    opts.innerHTML = `
-      <div class="text-answer-wrap">
-        <input type="text" id="text-input"
-          placeholder="Cavabınızı yazın..."
-          value="${answers[current] || ''}"
-          oninput="answers[${current}] = this.value.trim()">
-      </div>`;
-
-  // ── TİP 2: Çox seçimli (checkbox)
-  } else if (q.multi) {
-    const sel = answers[current];
-    opts.innerHTML = q.opts.map((o, i) => `
-      <div class="option ${sel.has(i) ? 'selected' : ''}" onclick="selectMulti(${i})">
-        <div class="opt-check">${sel.has(i) ? '✓' : ''}</div>
-        <span>${o}</span>
-      </div>`).join('');
-
-  // ── TİP 1 & 3: Tək seçimli
-  } else {
-    opts.innerHTML = q.opts.map((o, i) => `
-      <div class="option ${answers[current] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
-        <div class="opt-letter">${letters[i]}</div>
-        <span>${o}</span>
-      </div>`).join('');
-  }
+  opts.innerHTML = q.opts.map((o,i) => `
+    <div class="option ${answers[current]===i?'selected':''}" onclick="selectOpt(${i})">
+      <div class="opt-letter">${letters[i]}</div><span>${o}</span>
+    </div>`).join('');
 
   document.getElementById('btn-prev').disabled = current === 0;
-  document.getElementById('btn-next').textContent = current === total - 1 ? 'Bitir ✓' : 'Növbəti →';
+  document.getElementById('btn-next').textContent = current===total-1 ? 'Bitir ✓' : 'Növbəti →';
 }
 
 function selectOpt(i) {
   answers[current] = i;
-  document.querySelectorAll('.option').forEach((el, idx) => {
-    el.className = 'option' + (idx === i ? ' selected' : '');
-    const letter = el.querySelector('.opt-letter');
-    if (letter) letter.style.background = idx === i ? 'var(--gold)' : 'var(--navy)';
-    if (letter) letter.style.color = idx === i ? 'var(--navy)' : '#fff';
+  document.querySelectorAll('.option').forEach((el,idx) => {
+    el.className = 'option' + (idx===i?' selected':'');
   });
 }
 
-function selectMulti(i) {
-  const sel = answers[current];
-  if (sel.has(i)) sel.delete(i); else sel.add(i);
-  document.querySelectorAll('.option').forEach((el, idx) => {
-    el.className = 'option' + (sel.has(idx) ? ' selected' : '');
-    const chk = el.querySelector('.opt-check');
-    if (chk) chk.textContent = sel.has(idx) ? '✓' : '';
-  });
-}
-
-function prevQ() { if (current > 0) { current--; renderQ(); } }
-function nextQ() {
-  if (current === QUESTIONS.length - 1) { showResult(); return; }
-  current++;
-  renderQ();
-}
-
-function isCorrect(i) {
-  const q = QUESTIONS[i], a = answers[i];
-  if (q.type === 'text') {
-    return String(a).trim().toLowerCase() === String(q.answer).trim().toLowerCase();
-  } else if (q.multi) {
-    const exp = new Set(q.correct);
-    return a.size === exp.size && [...a].every(v => exp.has(v));
-  } else {
-    return a === q.correct;
-  }
-}
+function prevQ() { if (current>0) { current--; renderQ(); } }
+function nextQ() { if (current===QUESTIONS.length-1) { showResult(); return; } current++; renderQ(); }
 
 function showResult() {
   clearInterval(timerInt);
-  elapsed = Math.floor((Date.now() - startTime) / 1000);
-  document.getElementById('exam-section').style.display = 'none';
+  elapsed = Math.floor((Date.now()-startTime)/1000);
+  document.getElementById('exam-section').style.display='none';
   document.getElementById('result-section').classList.add('show');
 
   let correct = 0;
-  const details = QUESTIONS.map((q, i) => {
-    const ok = isCorrect(i);
+  const details = answers.map((a,i) => {
+    const ok = a === QUESTIONS[i].correct;
     if (ok) correct++;
-    return { qtext: q.q, answered: answers[i] instanceof Set ? [...answers[i]] : answers[i], correct: ok };
+    return { qtext: QUESTIONS[i].q, answered: a, correct: ok };
   });
 
-  const pct = Math.round((correct / QUESTIONS.length) * 100);
+  const pct = Math.round((correct/QUESTIONS.length)*100);
   const passed = pct >= EXAM_CONFIG.passScore;
 
-  document.getElementById('result-pct').textContent = pct + '%';
-  document.getElementById('result-pct').className = 'result-pct ' + (passed ? 'pass' : 'fail');
-  document.getElementById('result-ring').className  = 'result-ring '  + (passed ? 'pass' : 'fail');
+  document.getElementById('result-pct').textContent = pct+'%';
+  document.getElementById('result-pct').className = 'result-pct '+(passed?'pass':'fail');
+  document.getElementById('result-ring').className = 'result-ring '+(passed?'pass':'fail');
   document.getElementById('result-title').textContent = passed ? '🎉 Təbrik edirik!' : '😔 Bu dəfə alınmadı';
-  document.getElementById('result-desc').textContent  = passed
+  document.getElementById('result-desc').textContent = passed
     ? `${pct}% ilə keçdiniz. Keçmə balı: ${EXAM_CONFIG.passScore}%`
     : `${pct}% aldınız. Keçmək üçün ${EXAM_CONFIG.passScore}% lazımdır.`;
-
-  const m = Math.floor(elapsed/60), s = elapsed%60;
+  const m=Math.floor(elapsed/60), s=elapsed%60;
   document.getElementById('rs-correct').textContent = correct;
-  document.getElementById('rs-wrong').textContent   = QUESTIONS.length - correct;
-  document.getElementById('rs-time').textContent    = `${m}:${String(s).padStart(2,'0')}`;
+  document.getElementById('rs-wrong').textContent = QUESTIONS.length-correct;
+  document.getElementById('rs-time').textContent = `${m}:${String(s).padStart(2,'0')}`;
 
-  // Nəticəni saxla (admin paneli üçün detallı)
+  // Save result
   const results = loadResults();
   results.push({
     user: currentUser, exam: EXAM_CONFIG.title,
@@ -487,23 +369,21 @@ function showResult() {
   });
   saveResults(results);
 
-  renderLeaderboard();
+  renderLeaderboard(pct);
 }
 
-function renderLeaderboard() {
+function renderLeaderboard(myScore) {
   const results = loadResults().filter(r => r.exam === EXAM_CONFIG.title);
-  results.sort((a, b) => b.score - a.score || a.elapsed - b.elapsed);
-  const rankCls = ['gold', 'silver', 'bronze'];
-  const rankSym = ['🥇', '🥈', '🥉'];
-  document.getElementById('leaderboard').innerHTML = results.length
-    ? results.slice(0, 15).map((r, i) => `
-        <div class="lb-entry ${r.user === currentUser ? 'me' : ''}">
-          <div class="lb-rank ${rankCls[i] || ''}">${rankSym[i] || (i + 1)}</div>
-          <div class="lb-name">${r.user}${r.user === currentUser ? ' (siz)' : ''}</div>
-          <div class="lb-score">${r.score}%</div>
-          <div class="lb-time">${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,'0')}</div>
-        </div>`).join('')
-    : '<div style="color:var(--muted);font-size:14px">Hələ nəticə yoxdur.</div>';
+  results.sort((a,b) => b.score-a.score || a.elapsed-b.elapsed);
+  const rankCls = ['gold','silver','bronze'];
+  const rankSym = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard').innerHTML = results.slice(0,15).map((r,i) => `
+    <div class="lb-entry ${r.user===currentUser?'me':''}">
+      <div class="lb-rank ${rankCls[i]||''}">${rankSym[i]||(i+1)}</div>
+      <div class="lb-name">${r.user}${r.user===currentUser?' (siz)':''}</div>
+      <div class="lb-score">${r.score}%</div>
+      <div class="lb-time">${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,'0')}</div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:14px">Hələ nəticə yoxdur.</div>';
 }
 
 init();
