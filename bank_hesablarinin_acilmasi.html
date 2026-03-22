@@ -485,7 +485,8 @@ function initAnswers() {
 }
 
 function init() {
-  currentUser = localStorage.getItem('xb_current_user');
+  const session = JSON.parse(localStorage.getItem('xb_session') || 'null');
+  currentUser = session && !session.isAdmin ? session.user : null;
   if (!currentUser) { window.location.href = 'index.html'; return; }
 
   document.getElementById('nav-user').textContent = '👤 ' + currentUser;
